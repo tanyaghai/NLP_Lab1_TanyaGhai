@@ -6,7 +6,36 @@ from tokenizer import tokenize
 
 def my_best_segmenter(token_list): 
     """ TODO: Replace this with an improved sentence segmenter. """
-    pass
+    all_sentences = []
+    this_sentence = []
+
+    abbreviations = [
+    'Mr', 'Mrs', 'Dr', 'Sen', 'Gen', 'Rep', 'Col',
+    'Gov', 'Prof', 'Rev', 'Lt', 'Atty',
+    'Inc', 'Jr', 'Sr', 'St', 'Ave', 'Co', 'Corp',
+    'No', 'Dist',
+    'Jan', 'Feb', 'Mar', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'
+]
+
+    for token in token_list:
+        this_sentence.append(token)
+
+        if token in ['.', ';', '!', '?']:
+
+            if token == '.' and len(this_sentence) >= 2:
+                previous_token = this_sentence[-2]
+
+                if previous_token in abbreviations:
+                    continue
+
+                if len(previous_token) == 1 and previous_token.isalpha():
+                    continue
+
+            all_sentences.append(this_sentence)
+            this_sentence = []
+
+    return all_sentences
+    
 
 def baseline_segmenter(token_list):
     all_sentences = []
@@ -20,10 +49,21 @@ def baseline_segmenter(token_list):
 
 def write_sentence_boundaries(sentence_list, out):
     """ TODO: Write out the token numbers of the sentence boundaries. """
-    pass
+    count = 0
+
+    for sentence in sentence_list:
+        count += len(sentence)
+        out.write(str(count - 1) + '\n')
 
 def main(args):
-    pass
+    text = ""
+    for line in args.textfile:
+        text += line
+
+    tokens = tokenize(text)
+    sentences = my_best_segmenter(tokens)
+
+    write_sentence_boundaries(sentences, args.hypothesis_file)
 
 
 """You may have opened a file using something like
